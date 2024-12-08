@@ -1,0 +1,10 @@
+services:
+  apk_installer:
+    build: .
+    volumes:
+      - ./:/app/
+      - ./ssh:/root/.ssh
+    network_mode: "host"
+    environment:
+      - ADB_SERVER_SOCKET=tcp:127.0.0.1:5037
+    restart: unless-stopped
