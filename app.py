@@ -7,7 +7,8 @@ import pandas as pd
 import rethinkdb as r
 from rethinkdb import RethinkDB
 import time
-
+from dotenv import load_dotenv
+load_dotenv()
 
 
 def del_device(serial=None):
@@ -36,7 +37,9 @@ def send_api_request(url, method='GET', params=None, data=None, headers=None):
             headers = {"Authorization": f"Bearer {token}"}
         else:
             headers = None
-    url =  "http://10.7.0.22:7100/api/v1/"+str(url)
+    url =  f"{os.getenv('URL_API_BASE')}/api/v1/"+str(url)
+    print(url)
+    print(headers)
     try:
         response = requests.request(method=method, url=url, params=params, json=data, headers=headers)
 
@@ -130,6 +133,8 @@ def reboot():
     
     
 def main():
+    st.write(os.getenv("STF_API_TOKEN"))
+    st.write(os.getenv("URL_API_BASE"))
     global stfDevlist
     st.title("APK Installer and Service Restarter")
     if st.button("Rebot"):
