@@ -6,7 +6,7 @@ import requests
 import pandas as pd
 import rethinkdb as r
 from rethinkdb import RethinkDB
-
+import time
 
 
 
@@ -31,8 +31,12 @@ def send_api_request(url, method='GET', params=None, data=None, headers=None):
     :return: Ответ сервера (response object).
     """
     if headers==None:
-         headers = {"Authorization": "Bearer dce03460b739497a9bc808f3a45ccb426d6ed6f1a864466b923f3f7c086f2840"}
-    url =  "http://192.168.1.131:7100/api/v1/"+str(url)
+        token = os.getenv("STF_API_TOKEN")
+        if token:
+            headers = {"Authorization": f"Bearer {token}"}
+        else:
+            headers = None
+    url =  "http://10.7.0.22:7100/api/v1/"+str(url)
     try:
         response = requests.request(method=method, url=url, params=params, json=data, headers=headers)
 
@@ -174,7 +178,18 @@ def main():
         # Удаляем временный файл после использования
         if os.path.exists(apk_temp_path):
             os.remove(apk_temp_path)
-
+    if selected_devices:
+        if st.button("Restart device usb"):
+            for device_id in selected_devices:
+                device_id = devicelist[devicelist["Notes"]==device_id].iloc[0]['Serial']
+                try:
+                    subprocess.run(["adb", "-s", device_id, "usb"], check=True)
+                    time.sleep(3)
+                    subprocess.run(["adb", "-s", device_id, "reconnect"], check=True)
+                    st.success(f"USB перезапущен на устройстве {device_id}")
+                except subprocess.CalledProcessError as e:
+                    st.error(f"Ошибка при перезапуске USB на устройстве {device_id}: {e}")
+            
 if __name__ == "__main__":
     
     main()
