@@ -133,8 +133,8 @@ def reboot():
     
     
 def main():
-    st.write(os.getenv("STF_API_TOKEN"))
-    st.write(os.getenv("URL_API_BASE"))
+    # st.write(os.getenv("STF_API_TOKEN"))
+    # st.write(os.getenv("URL_API_BASE"))
     global stfDevlist
     st.title("APK Installer and Service Restarter")
     if st.button("Rebot"):
