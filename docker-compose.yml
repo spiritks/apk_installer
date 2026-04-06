@@ -4,7 +4,14 @@ services:
     volumes:
       - ./:/app/
       - ./ssh:/root/.ssh
-    network_mode: "host"
+    networks:
+      - stf_default
     environment:
-      - ADB_SERVER_SOCKET=tcp:127.0.0.1:5037
+      - ADB_SERVER_SOCKET=tcp:stf:5037
     restart: unless-stopped
+    ports:
+      - 8501:8501
+networks:
+  stf_default:
+    external: true
+      

@@ -8,13 +8,25 @@ import rethinkdb as r
 from rethinkdb import RethinkDB
 import time
 from dotenv import load_dotenv
+from adbutils import AdbClient
 load_dotenv()
+
+
+def get_adb_client():
+    socket_value = os.getenv("ADB_SERVER_SOCKET", "")
+    if socket_value.startswith("tcp:"):
+        try:
+            host, port = socket_value[4:].rsplit(":", 1)
+            return AdbClient(host=host, port=int(port))
+        except ValueError:
+            pass
+    return AdbClient()
 
 
 def del_device(serial=None):
     if serial!=None:
         r = RethinkDB()
-        conn = r.connect(host='localhost', port=28015)
+        conn = r.connect(host='rethinkdb', port=28015)
         db = r.db('stf')
         table = db.table('devices')
         result = table.filter(r.row['serial'] == serial).delete().run(conn)
@@ -116,7 +128,7 @@ def get_adb_devices():
         return None
 def get_connected_devices():
     try:
-        devices = adb.device_list()
+        devices = get_adb_client().device_list()
         return [{"Serial":device.serial} for device in devices]
     except Exception as e:
         st.error(f"Ошибка при получении списка подключенных устройств: {e}")
